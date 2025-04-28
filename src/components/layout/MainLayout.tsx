@@ -22,12 +22,12 @@ export function MainLayout({ children }: MainLayoutProps) {
               className="pl-8 pr-4 py-1 w-full rounded-md bg-muted/50 border-0 focus:ring-1 focus:ring-primary" 
             />
           </div> */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button className="py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Register New API
+              Save new Product API
             </button>
-          </div>
+          </div> */}
         </header>
         <main className="p-6">{children}</main>
       </div>

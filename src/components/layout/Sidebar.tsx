@@ -29,7 +29,7 @@ const navItems = [
   {
     title: "Saved APIs",
     icon: Calendar,
-    path: "/scheduled",
+    path: "/saved-apis",
   },
   {
     title: "Reports",

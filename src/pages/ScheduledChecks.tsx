@@ -1,4 +1,5 @@
 import { MainLayout } from "@/components/layout/MainLayout";
+import ProductApiForm from "@/components/others/ProductApiForm";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,91 +17,154 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar, Clock, Play, Plus, Settings, Trash } from "lucide-react";
-
-const scheduledTests = [
-  {
-    id: 1,
-    name: "Payment Gateway API",
-    frequency: "Daily",
-    nextRun: "Today, 9:00 PM",
-    lastRun: "Yesterday, 9:00 PM",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "User Authentication API",
-    frequency: "Weekly",
-    nextRun: "Wed, 12:00 AM",
-    lastRun: "Last week",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Data Export API",
-    frequency: "Daily",
-    nextRun: "Today, 10:30 PM",
-    lastRun: "Yesterday, 10:30 PM",
-    status: "paused",
-  },
-  {
-    id: 4,
-    name: "Product Catalog API",
-    frequency: "Hourly",
-    nextRun: "Today, 4:00 PM",
-    lastRun: "Today, 3:00 PM",
-    status: "active",
-  },
-  {
-    id: 5,
-    name: "Analytics API",
-    frequency: "Weekly",
-    nextRun: "Sun, 12:00 AM",
-    lastRun: "Last week",
-    status: "active",
-  },
-];
+import { useState } from "react";
+import { getAuth } from "firebase/auth";
+import { useQuery } from "@tanstack/react-query";
+import { getUserProductAPIs } from "@/services/product-api";
+import { useToast } from "@/hooks/use-toast";
+import { deleteDoc, doc, getFirestore } from "firebase/firestore";
 
 export default function ScheduledChecks() {
+  const { currentUser } = getAuth();
+  const {
+    isPending,
+    isLoading,
+    error,
+    refetch,
+    data: productApis,
+  } = useQuery({
+    queryKey: ["product-apis"],
+    queryFn: async () => getUserProductAPIs(currentUser.uid),
+    retry: false,
+  });
+  const [openDialog, setOpenDialog] = useState(false);
+  const [actionLoading, setActionLoading] = useState<null | string>(null);
+  const [isDeleteAction, setIsDeleteAction] = useState(false);
+  const toast = useToast();
+
+  const controlledProductApiTest = async (productApi) => {
+    setActionLoading(productApi.productAPIId);
+    const { currentUser } = getAuth();
+
+    try {
+      if (!currentUser || !currentUser.uid)
+        throw new Error("Please log in first");
+      const resp = await fetch("http://localhost:6575/api-test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+          testName: `${productApi.productName} Manual Test`,
+          targetUrl: productApi.targetUrl,
+          openAPISpecPath: productApi.openAPISpecPath,
+          productAPIId: productApi.productAPIId,
+        }),
+      });
+      const respData = (await resp.json()) as unknown as {
+        success: boolean;
+        message: string;
+      };
+      if (!respData.success) throw new Error(respData.message);
+      toast.toast({
+        title: "Success",
+        description: respData.message,
+        variant: "default",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+  const deleteProductApi = async (productApi) => {
+    setActionLoading(productApi);
+    setIsDeleteAction(true);
+    try {
+      await deleteDoc(doc(getFirestore(), "productAPIs", productApi));
+      await refetch();
+      toast.toast({
+        title: "Success",
+        description: "Product API deleted successfully",
+        variant: "default",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+
+      setIsDeleteAction(true);
+    }
+  };
+
   return (
     <MainLayout>
-      {/* <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Scheduled Checks</h1>
-          <p className="text-muted-foreground">
-            Manage your scheduled API security checks
-          </p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Schedule
-        </Button>
-      </div> */}
-
       <Card>
         <CardHeader>
-          <CardTitle>Saved APIs</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Saved APIs</CardTitle>
+            <div className="flex items-center gap-2">
+              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                <DialogTrigger className="py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Save new Product API
+                </DialogTrigger>
+                <ProductApiForm
+                  onClose={async () => {
+                    await refetch();
+                    setOpenDialog(false);
+                  }}
+                />
+              </Dialog>
+            </div>
+          </div>
           <CardDescription>
             Currently saved APIs & their security checks status
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                {/* <TableHead>Frequency</TableHead> */}
-                {/* <TableHead>Next Run</TableHead> */}
-                <TableHead>Last Run</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {scheduledTests.map((test) => (
-                <TableRow key={test.id}>
-                  <TableCell className="font-medium">{test.name}</TableCell>
-                  {/* <TableCell>
+          {isPending || isLoading ? (
+            <div>Loading...</div>
+          ) : error ? (
+            <div>{error.message}</div>
+          ) : productApis.length === 0 ? (
+            <div className="text-muted-foreground text-center py-4">
+              No saved APIs found
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  {/* <TableHead>Frequency</TableHead> */}
+                  {/* <TableHead>Next Run</TableHead> */}
+                  {/* <TableHead>Last Run</TableHead> */}
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {productApis.map((productApi) => (
+                  <TableRow key={productApi.productAPIId}>
+                    <TableCell className="font-medium">
+                      {productApi.productName}
+                    </TableCell>
+                    {/* <TableCell>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Calendar className="h-3.5 w-3.5" />
                       <span>{test.frequency}</span>
@@ -112,31 +176,50 @@ export default function ScheduledChecks() {
                       <span>{test.nextRun}</span>
                     </div>
                   </TableCell> */}
-                  <TableCell>{test.lastRun}</TableCell>
-                  <TableCell>
-                    <StatusBadge
-                      status={test.status === "active" ? "success" : "warning"}
-                    >
-                      {test.status === "active" ? "Active" : "Paused"}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Play className="h-4 w-4" />
-                      </Button>
-                      {/* <Button variant="ghost" size="sm">
+                    {/* <TableCell>{test.lastRun}</TableCell> */}
+                    <TableCell>
+                      <StatusBadge status="success">Active</StatusBadge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => controlledProductApiTest(productApi)}
+                          disabled={actionLoading != null}
+                        >
+                          {actionLoading === productApi.productAPIId &&
+                          !isDeleteAction ? (
+                            "Testing..."
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
+                        </Button>
+                        {/* <Button variant="ghost" size="sm">
                         <Settings className="h-4 w-4" />
                       </Button> */}
-                      <Button variant="ghost" size="sm">
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            deleteProductApi(productApi.productAPIId)
+                          }
+                          disabled={actionLoading != null}
+                        >
+                          {actionLoading === productApi.productAPIId &&
+                          isDeleteAction ? (
+                            "Deleting..."
+                          ) : (
+                            <Trash className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

@@ -17,6 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { getUserLatestAPITestsForSavedProductAPI } from "@/services/api-tests";
+import { Link } from "react-router-dom";
 
 const recentScans = [
   {
@@ -50,6 +53,17 @@ const recentScans = [
 ];
 
 export default function Dashboard() {
+  const {
+    isPending,
+    isLoading,
+    error,
+    refetch,
+    data: ProductAPiTestingReports,
+  } = useQuery({
+    queryKey: ["resent-test"],
+    queryFn: getUserLatestAPITestsForSavedProductAPI,
+    retry: false,
+  });
   return (
     <MainLayout>
       <div className="flex justify-between items-center mb-8">
@@ -110,44 +124,63 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentScans.map((scan) => (
-                  <div
-                    key={scan.id}
-                    className="flex items-center justify-between p-3 bg-secondary/30 rounded-md"
-                  >
-                    <div>
-                      <p className="font-medium">{scan.api}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {scan.timestamp}
-                      </p>
+              {isPending || isLoading ? (
+                <div>Loading...</div>
+              ) : error ? (
+                <div>{error.message}</div>
+              ) : ProductAPiTestingReports.length === 0 ? (
+                <div className="text-muted-foreground text-center py-4">
+                  No saved APIs found
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {ProductAPiTestingReports.map((scan) => (
+                    <div
+                      key={scan.reportId}
+                      className="flex items-center justify-between p-3 bg-secondary/30 rounded-md"
+                    >
+                      <div>
+                        <p className="font-medium">{scan.reportName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {scan.createdAt?.toDate()?.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {/* <StatusBadge
+                          status={
+                            scan.status as
+                              | "success"
+                              | "warning"
+                              | "error"
+                              | "info"
+                          }
+                        >
+                          {scan.status === "success"
+                            ? "Secure"
+                            : scan.status === "warning"
+                            ? "Warnings"
+                            : "Vulnerabilities"}
+                        </StatusBadge> */}
+                        <Link to={`/reports/${scan.reportId}`}>
+                          <StatusBadge status="success">
+                            View Report
+                          </StatusBadge>
+                        </Link>
+                        {JSON.parse(scan.jsonReport).site[0]?.alerts.length >
+                        0 ? (
+                          <Badge variant="outline" className="bg-card">
+                            {JSON.parse(scan.jsonReport).site[0]?.alerts.length}{" "}
+                            {JSON.parse(scan.jsonReport).site[0]?.alerts
+                              .length === 1
+                              ? "issue"
+                              : "issues"}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <StatusBadge
-                        status={
-                          scan.status as
-                            | "success"
-                            | "warning"
-                            | "error"
-                            | "info"
-                        }
-                      >
-                        {scan.status === "success"
-                          ? "Secure"
-                          : scan.status === "warning"
-                          ? "Warnings"
-                          : "Vulnerabilities"}
-                      </StatusBadge>
-                      {scan.findings > 0 ? (
-                        <Badge variant="outline" className="bg-card">
-                          {scan.findings}{" "}
-                          {scan.findings === 1 ? "issue" : "issues"}
-                        </Badge>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

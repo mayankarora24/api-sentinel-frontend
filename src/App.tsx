@@ -60,7 +60,7 @@ const App = () => (
               }
             />
             <Route
-              path="/scheduled"
+              path="/saved-apis"
               element={
                 <ProtectedRoute>
                   <ScheduledChecks />

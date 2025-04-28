@@ -89,6 +89,11 @@ function TestHistories() {
           <div className="text-center text-muted-foreground p-8">
             {isLoading && "Loading..."}
             {!error && (!tests || tests.length === 0) && "No tests found"}
+            {tests && tests.length === 0 && (
+              <div className="text-muted-foreground text-center py-4">
+                No test found
+              </div>
+            )}
           </div>
         )}
       </CardContent>
