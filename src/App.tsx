@@ -1,6 +1,8 @@
+import ProtectedRoute from "@//components/auth/ProtectedRoute";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
@@ -20,80 +22,82 @@ const queryClient = new QueryClient();
 const isAuthenticated = true;
 
 // Simple auth guard component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+// const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+//   if (!isAuthenticated) {
+//     return <Navigate to="/login" replace />;
+//   }
 
-  return <>{children}</>;
-};
+//   return <>{children}</>;
+// };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          
-          {/* Protected Routes */}
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/api-tests" 
-            element={
-              <ProtectedRoute>
-                <ApiTests />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/scheduled" 
-            element={
-              <ProtectedRoute>
-                <ScheduledChecks />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/reports" 
-            element={
-              <ProtectedRoute>
-                <Reports />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/reports/:id" 
-            element={
-              <ProtectedRoute>
-                <ReportDetail />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/app-reports" 
-            element={
-              <ProtectedRoute>
-                <ApplicationReports />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Not Found */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Auth Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/api-tests"
+              element={
+                <ProtectedRoute>
+                  <ApiTests />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/scheduled"
+              element={
+                <ProtectedRoute>
+                  <ScheduledChecks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports/:id"
+              element={
+                <ProtectedRoute>
+                  <ReportDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/app-reports"
+              element={
+                <ProtectedRoute>
+                  <ApplicationReports />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Not Found */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

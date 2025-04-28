@@ -1,9 +1,21 @@
-
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Calendar, Clock, Play, Plus, Settings, Trash } from "lucide-react";
 
 const scheduledTests = [
@@ -13,7 +25,7 @@ const scheduledTests = [
     frequency: "Daily",
     nextRun: "Today, 9:00 PM",
     lastRun: "Yesterday, 9:00 PM",
-    status: "active"
+    status: "active",
   },
   {
     id: 2,
@@ -21,7 +33,7 @@ const scheduledTests = [
     frequency: "Weekly",
     nextRun: "Wed, 12:00 AM",
     lastRun: "Last week",
-    status: "active"
+    status: "active",
   },
   {
     id: 3,
@@ -29,7 +41,7 @@ const scheduledTests = [
     frequency: "Daily",
     nextRun: "Today, 10:30 PM",
     lastRun: "Yesterday, 10:30 PM",
-    status: "paused"
+    status: "paused",
   },
   {
     id: 4,
@@ -37,7 +49,7 @@ const scheduledTests = [
     frequency: "Hourly",
     nextRun: "Today, 4:00 PM",
     lastRun: "Today, 3:00 PM",
-    status: "active"
+    status: "active",
   },
   {
     id: 5,
@@ -45,29 +57,31 @@ const scheduledTests = [
     frequency: "Weekly",
     nextRun: "Sun, 12:00 AM",
     lastRun: "Last week",
-    status: "active"
-  }
+    status: "active",
+  },
 ];
 
 export default function ScheduledChecks() {
   return (
     <MainLayout>
-      <div className="flex justify-between items-center mb-8">
+      {/* <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Scheduled Checks</h1>
-          <p className="text-muted-foreground">Manage your scheduled API security checks</p>
+          <p className="text-muted-foreground">
+            Manage your scheduled API security checks
+          </p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
           New Schedule
         </Button>
-      </div>
+      </div> */}
 
       <Card>
         <CardHeader>
-          <CardTitle>Active Schedules</CardTitle>
+          <CardTitle>Saved APIs</CardTitle>
           <CardDescription>
-            Currently scheduled API security checks and their status
+            Currently saved APIs & their security checks status
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -75,8 +89,8 @@ export default function ScheduledChecks() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Frequency</TableHead>
-                <TableHead>Next Run</TableHead>
+                {/* <TableHead>Frequency</TableHead> */}
+                {/* <TableHead>Next Run</TableHead> */}
                 <TableHead>Last Run</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -86,7 +100,7 @@ export default function ScheduledChecks() {
               {scheduledTests.map((test) => (
                 <TableRow key={test.id}>
                   <TableCell className="font-medium">{test.name}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Calendar className="h-3.5 w-3.5" />
                       <span>{test.frequency}</span>
@@ -97,10 +111,10 @@ export default function ScheduledChecks() {
                       <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                       <span>{test.nextRun}</span>
                     </div>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>{test.lastRun}</TableCell>
                   <TableCell>
-                    <StatusBadge 
+                    <StatusBadge
                       status={test.status === "active" ? "success" : "warning"}
                     >
                       {test.status === "active" ? "Active" : "Paused"}
@@ -111,9 +125,9 @@ export default function ScheduledChecks() {
                       <Button variant="ghost" size="sm">
                         <Play className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      {/* <Button variant="ghost" size="sm">
                         <Settings className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                       <Button variant="ghost" size="sm">
                         <Trash className="h-4 w-4" />
                       </Button>
@@ -126,7 +140,7 @@ export default function ScheduledChecks() {
         </CardContent>
       </Card>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Schedule Configuration</CardTitle>
@@ -190,7 +204,7 @@ export default function ScheduledChecks() {
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </MainLayout>
   );
 }

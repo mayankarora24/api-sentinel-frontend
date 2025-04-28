@@ -1,12 +1,105 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
+} from "recharts";
+
+const applications = [
+  {
+    id: "app1",
+    name: "Payment Gateway",
+    description: "APIs for processing payments",
+    apiCount: 8,
+    reports: [
+      {
+        id: 1,
+        name: "Weekly Security Scan",
+        date: "Today",
+        status: "error",
+        findings: 7,
+      },
+      {
+        id: 2,
+        name: "PCI DSS Compliance Check",
+        date: "5 days ago",
+        status: "warning",
+        findings: 3,
+      },
+    ],
+  },
+  {
+    id: "app2",
+    name: "User Management",
+    description: "APIs for user registration and profile management",
+    apiCount: 12,
+    reports: [
+      {
+        id: 3,
+        name: "Weekly Security Scan",
+        date: "Yesterday",
+        status: "warning",
+        findings: 5,
+      },
+      {
+        id: 4,
+        name: "OAuth Implementation Review",
+        date: "1 week ago",
+        status: "success",
+        findings: 1,
+      },
+    ],
+  },
+  {
+    id: "app3",
+    name: "Product Catalog",
+    description: "APIs for product listing and inventory",
+    apiCount: 6,
+    reports: [
+      {
+        id: 5,
+        name: "Weekly Security Scan",
+        date: "3 days ago",
+        status: "success",
+        findings: 0,
+      },
+      {
+        id: 6,
+        name: "Performance & Security Audit",
+        date: "2 weeks ago",
+        status: "info",
+        findings: 2,
+      },
+    ],
+  },
+];
 
 const vulnerabilityData = [
   { name: "Payment API", critical: 2, high: 5, medium: 8, low: 12 },
@@ -29,7 +122,7 @@ const severityData = [
   { name: "Critical", value: 6, color: "#EF4444" },
   { name: "High", value: 17, color: "#F59E0B" },
   { name: "Medium", value: 34, color: "#3B82F6" },
-  { name: "Low", value: 51, color: "#10B981" }
+  { name: "Low", value: 51, color: "#10B981" },
 ];
 
 const reportsList = [
@@ -38,48 +131,50 @@ const reportsList = [
     name: "Payment Gateway API Security Report",
     date: "Today, 9:30 AM",
     status: "critical",
-    findings: 7
+    findings: 7,
   },
   {
     id: 2,
     name: "User Authentication API Report",
     date: "Yesterday",
     status: "warning",
-    findings: 12
+    findings: 12,
   },
   {
     id: 3,
     name: "Data Export API Assessment",
     date: "2 days ago",
     status: "error",
-    findings: 16
+    findings: 16,
   },
   {
     id: 4,
     name: "Product Catalog API Report",
     date: "3 days ago",
     status: "success",
-    findings: 2
+    findings: 2,
   },
   {
     id: 5,
     name: "Analytics API Security Assessment",
     date: "1 week ago",
     status: "warning",
-    findings: 9
-  }
+    findings: 9,
+  },
 ];
 
 export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState("30days");
-  const [selectedTab, setSelectedTab] = useState("overview");
+  const [selectedTab, setSelectedTab] = useState("reports");
 
   return (
     <MainLayout>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Security Reports</h1>
-          <p className="text-muted-foreground">View and analyze your API security assessment reports</p>
+          <p className="text-muted-foreground">
+            View and analyze your API security assessment reports
+          </p>
         </div>
         <div>
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -99,161 +194,234 @@ export default function Reports() {
         </div>
       </div>
 
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="grid w-full md:w-[600px] grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="reports">Report List</TabsTrigger>
-          <TabsTrigger value="trends">Trends & Analytics</TabsTrigger>
+      <Tabs defaultValue="app1" className="w-full">
+        <TabsList className="w-full mb-6 flex flex-wrap h-auto gap-2 justify-start bg-transparent p-0">
+          {applications.map((app) => (
+            <TabsTrigger
+              key={app.id}
+              value={app.id}
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-4 py-2"
+            >
+              {app.name}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="overview" className="mt-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Vulnerability Summary</CardTitle>
-                <CardDescription>Distribution by severity level</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={severityData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={4}
-                        dataKey="value"
-                      >
-                        {severityData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        formatter={(value) => [`${value} issues`, '']}
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))',
-                          borderColor: 'hsl(var(--border))',
-                          borderRadius: 'var(--radius)'
-                        }}
-                      />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+        {applications.map((app) => (
+          <TabsContent key={app.id} value={app.id} className="pt-4">
+            <Tabs
+              value={selectedTab}
+              onValueChange={setSelectedTab}
+              className="w-full"
+            >
+              <TabsList className="grid w-full md:w-[600px] grid-cols-3">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="reports">Report List</TabsTrigger>
+                <TabsTrigger value="trends">Trends & Analytics</TabsTrigger>
+              </TabsList>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Vulnerability Trend</CardTitle>
-                <CardDescription>Total vulnerabilities over time</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={trendData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))',
-                          borderColor: 'hsl(var(--border))',
-                          borderRadius: 'var(--radius)'
-                        }}
-                      />
-                      <Bar dataKey="vulnerabilities" fill="hsl(var(--primary))" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>API Security by Endpoint</CardTitle>
-              <CardDescription>Vulnerabilities grouped by API endpoint</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={vulnerabilityData}
-                    layout="vertical"
-                    margin={{ top: 20, right: 30, left: 60, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" />
-                    <Tooltip
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        borderColor: 'hsl(var(--border))',
-                        borderRadius: 'var(--radius)'
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="critical" stackId="a" fill="#EF4444" name="Critical" />
-                    <Bar dataKey="high" stackId="a" fill="#F59E0B" name="High" />
-                    <Bar dataKey="medium" stackId="a" fill="#3B82F6" name="Medium" />
-                    <Bar dataKey="low" stackId="a" fill="#10B981" name="Low" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="reports" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Security Reports</CardTitle>
-              <CardDescription>Full list of security assessment reports</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {reportsList.map((report) => (
-                  <Link
-                    to={`/reports/${report.id}`}
-                    key={report.id}
-                    className="p-4 rounded-md bg-card border flex items-center justify-between hover:bg-secondary/20 cursor-pointer transition-colors"
-                  >
-                    <div>
-                      <h3 className="font-medium">{report.name}</h3>
-                      <p className="text-sm text-muted-foreground">{report.date}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{report.findings} findings</p>
-                        <StatusBadge status={report.status as "success" | "warning" | "error" | "info"}>
-                          {report.status === "success" ? "Safe" : 
-                           report.status === "warning" ? "Warnings" : "Critical"}
-                        </StatusBadge>
+              <TabsContent value="overview" className="mt-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Vulnerability Summary</CardTitle>
+                      <CardDescription>
+                        Distribution by severity level
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-2">
+                      <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={severityData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={4}
+                              dataKey="value"
+                            >
+                              {severityData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={entry.color}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              formatter={(value) => [`${value} issues`, ""]}
+                              contentStyle={{
+                                backgroundColor: "hsl(var(--card))",
+                                borderColor: "hsl(var(--border))",
+                                borderRadius: "var(--radius)",
+                              }}
+                            />
+                            <Legend />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    </CardContent>
+                  </Card>
 
-        <TabsContent value="trends" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Security Trends</CardTitle>
-              <CardDescription>Analysis of vulnerability trends over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-muted-foreground p-8">
-                <p>Detailed trend analysis will appear here.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Vulnerability Trend</CardTitle>
+                      <CardDescription>
+                        Total vulnerabilities over time
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-2">
+                      <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={trendData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: "hsl(var(--card))",
+                                borderColor: "hsl(var(--border))",
+                                borderRadius: "var(--radius)",
+                              }}
+                            />
+                            <Bar
+                              dataKey="vulnerabilities"
+                              fill="hsl(var(--primary))"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>API Security by Endpoint</CardTitle>
+                    <CardDescription>
+                      Vulnerabilities grouped by API endpoint
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[400px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={vulnerabilityData}
+                          layout="vertical"
+                          margin={{ top: 20, right: 30, left: 60, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" />
+                          <YAxis type="category" dataKey="name" />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "hsl(var(--card))",
+                              borderColor: "hsl(var(--border))",
+                              borderRadius: "var(--radius)",
+                            }}
+                          />
+                          <Legend />
+                          <Bar
+                            dataKey="critical"
+                            stackId="a"
+                            fill="#EF4444"
+                            name="Critical"
+                          />
+                          <Bar
+                            dataKey="high"
+                            stackId="a"
+                            fill="#F59E0B"
+                            name="High"
+                          />
+                          <Bar
+                            dataKey="medium"
+                            stackId="a"
+                            fill="#3B82F6"
+                            name="Medium"
+                          />
+                          <Bar
+                            dataKey="low"
+                            stackId="a"
+                            fill="#10B981"
+                            name="Low"
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="reports" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Security Reports</CardTitle>
+                    <CardDescription>
+                      Full list of security assessment reports
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {reportsList.map((report) => (
+                        <Link
+                          to={`/reports/${report.id}`}
+                          key={report.id}
+                          className="p-4 rounded-md bg-card border flex items-center justify-between hover:bg-secondary/20 cursor-pointer transition-colors"
+                        >
+                          <div>
+                            <h3 className="font-medium">{report.name}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {report.date}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-sm font-medium">
+                                {report.findings} findings
+                              </p>
+                              <StatusBadge
+                                status={
+                                  report.status as
+                                    | "success"
+                                    | "warning"
+                                    | "error"
+                                    | "info"
+                                }
+                              >
+                                {report.status === "success"
+                                  ? "Safe"
+                                  : report.status === "warning"
+                                  ? "Warnings"
+                                  : "Critical"}
+                              </StatusBadge>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="trends" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Security Trends</CardTitle>
+                    <CardDescription>
+                      Analysis of vulnerability trends over time
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center text-muted-foreground p-8">
+                      <p>Detailed trend analysis will appear here.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+        ))}
       </Tabs>
     </MainLayout>
   );

@@ -1,58 +1,85 @@
-
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
-import { 
-  Calendar, 
-  CheckSquare, 
-  Clock, 
-  Home, 
-  LogOut, 
-  Search, 
-  ShieldAlert, 
-  User 
+import { auth } from "../../../firebase";
+import { signOut } from "firebase/auth";
+import {
+  Calendar,
+  CheckSquare,
+  Clock,
+  Home,
+  LogOut,
+  Search,
+  ShieldAlert,
+  User,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
-  { 
-    title: "Dashboard", 
-    icon: Home, 
-    path: "/" 
+  {
+    title: "Dashboard",
+    icon: Home,
+    path: "/",
   },
-  { 
-    title: "API Tests", 
-    icon: ShieldAlert, 
-    path: "/api-tests" 
+  {
+    title: "API Tests",
+    icon: ShieldAlert,
+    path: "/api-tests",
   },
-  { 
-    title: "Scheduled Checks", 
-    icon: Calendar, 
-    path: "/scheduled" 
+  {
+    title: "Saved APIs",
+    icon: Calendar,
+    path: "/scheduled",
   },
-  { 
-    title: "Reports", 
-    icon: CheckSquare, 
-    path: "/reports" 
+  {
+    title: "Reports",
+    icon: CheckSquare,
+    path: "/reports",
   },
-  { 
-    title: "App Reports", 
-    icon: Search, 
-    path: "/app-reports" 
-  },
-  { 
-    title: "Recent Activity", 
-    icon: Clock, 
-    path: "/activity" 
-  },
+  // {
+  //   title: "App Reports",
+  //   icon: Search,
+  //   path: "/app-reports",
+  // },
+  // {
+  //   title: "Recent Activity",
+  //   icon: Clock,
+  //   path: "/activity",
+  // },
 ];
 
 export function Sidebar() {
   const location = useLocation();
-  
+  const toast = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log("Logged out successfully");
+      toast.toast({
+        title: "Success",
+        description: "You have been logged out successfully",
+        variant: "default",
+      });
+      // Navigation will happen automatically or redirect manually if needed
+    } catch (error) {
+      console.error("Failed to log out:", error);
+      toast.toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="h-screen w-64 fixed top-0 left-0 bg-sidebar border-r border-sidebar-border flex flex-col">
       <div className="p-4 border-b border-sidebar-border flex items-center gap-2">
         <ShieldAlert className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-sidebar-foreground">API Sentinel</h1>
+        <h1 className="text-xl font-bold text-sidebar-foreground">
+          API Sentinel
+        </h1>
       </div>
 
       <div className="flex-1 py-8 px-3">
@@ -65,8 +92,8 @@ export function Sidebar() {
                 to={item.path}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                  isActive 
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                 )}
               >
@@ -85,11 +112,18 @@ export function Sidebar() {
               <User className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="text-xs font-medium text-sidebar-foreground">Admin User</p>
-              <p className="text-xs text-sidebar-foreground/70">admin@apisentinel.com</p>
+              <p className="text-xs font-medium text-sidebar-foreground">
+                Admin User
+              </p>
+              <p className="text-xs text-sidebar-foreground/70">
+                admin@apisentinel.com
+              </p>
             </div>
           </div>
-          <button className="p-1 rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground">
+          <button
+            className="p-1 rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4" />
           </button>
         </div>
